@@ -1,7 +1,7 @@
 name: d_util
 description: "A collection of tools for Dart/Flutter developers, providing common functionality packages and extensions"
 version: 1.0.0
-homepage:
+homepage: https://github.com/Go-oG/d_util
 
 environment:
   sdk: ^3.0.0
