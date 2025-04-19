@@ -2,7 +2,6 @@ import 'array.dart';
 import 'types.dart';
 
 extension IterableExt<E> on Iterable<E> {
-
   Array<E> toArray() {
     var array = Array<E>(length);
     var i = 0;
@@ -130,6 +129,45 @@ extension IterableExt<E> on Iterable<E> {
       throw StateError("Cannot find minimum of empty collection");
     }
   }
+
+  Set<E> toSet([bool copySelf = true]) {
+    if (this is Set) {
+      if (copySelf) {
+        return Set.from(this);
+      }
+      return this as Set<E>;
+    }
+    return Set.from(this);
+  }
+
+  List<E> toList([bool copySelf = true]) {
+    if (this is List) {
+      if (copySelf) {
+        return List.from(this);
+      }
+      return this as List<E>;
+    }
+    return List.from(this);
+  }
+
+  ///返回一个按顺序排列的唯一值的List
+  List<E> union() {
+    return unionBy<E>((p0) => p0);
+  }
+
+  List<E> unionBy<K>(K? Function(E) convert) {
+    List<E> rl = [];
+    Set<K?> set = {};
+    for (var v in this) {
+      var k = convert(v);
+      if (set.contains(k)) {
+        continue;
+      }
+      rl.add(v);
+      set.add(k);
+    }
+    return rl;
+  }
 }
 
 extension ListExt<E> on List<E> {
@@ -172,6 +210,27 @@ extension ListExt<E> on List<E> {
         i++;
       }
     }
+  }
+
+  E? removeLastOrNull() {
+    if (isEmpty) {
+      return null;
+    }
+    return removeLast();
+  }
+
+  E? removeFirstOrNull() {
+    if (isEmpty) {
+      return null;
+    }
+    return removeAt(0);
+  }
+
+  void reverseSelf() {
+    ///TODO使用更高效算法
+    List<E> rl = List.from(reversed);
+    clear();
+    addAll(rl);
   }
 
   List<E> toUnionList() {
@@ -318,6 +377,12 @@ extension ListExt<E> on List<E> {
     }
     return low;
   }
+
+  List<E> copy() {
+    return List.from(this);
+  }
+
+
 }
 
 class ListIterator<T> {

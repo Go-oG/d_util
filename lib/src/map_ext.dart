@@ -71,7 +71,12 @@ extension MapExt<K, V> on Map<K, V> {
     return sum;
   }
 
-
-
+  Map<K, V> copy() {
+    Map<K, V> resultMap = {};
+    for (var item in entries) {
+      resultMap[item.key] = item.value;
+    }
+    return resultMap;
+  }
 
 }
