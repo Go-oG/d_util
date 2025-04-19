@@ -125,20 +125,6 @@ extension IterableExt<E> on Iterable<E> {
     return sum;
   }
 
-  E? get firstOrNull {
-    if (isEmpty) {
-      return null;
-    }
-    return first;
-  }
-
-  E? get lastOrNull {
-    if (isEmpty) {
-      return null;
-    }
-    return last;
-  }
-
   void _checkEmpty() {
     if (isEmpty) {
       throw StateError("Cannot find minimum of empty collection");

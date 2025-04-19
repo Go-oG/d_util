@@ -14,11 +14,3 @@ void checkRef(dynamic a, dynamic b, [String? msg]) {
     throw (msg ?? "a b引用的地址相同");
   }
 }
-
-bool isEmpty(String? str) {
-  return str == null || str.isEmpty;
-}
-
-bool isNotEmpty(String? str) {
-  return str != null && str.isNotEmpty;
-}
