@@ -13,7 +13,6 @@ export 'src/list_ext.dart';
 export 'src/map_ext.dart';
 export 'src/math.dart';
 export 'src/model.dart';
-export 'src/queue.dart';
 export 'src/random_id.dart';
 export 'src/set_ext.dart';
 export 'src/stack.dart';

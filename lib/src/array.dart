@@ -3,7 +3,7 @@ import 'dart:math';
 import 'math.dart';
 import 'types.dart';
 
-final class Array<E> implements List<E> {
+final class Array<E> with Iterable<E> {
   late final List<dynamic> _list;
 
   final int size;
@@ -53,13 +53,11 @@ final class Array<E> implements List<E> {
     }
   }
 
-  @override
   E operator [](int index) => _list[index] as E;
 
-  E? get(int index) => _list[index] as E?;
-
-  @override
   void operator []=(int index, E? value) => _list[index] = value;
+
+  E? get(int index) => _list[index] as E?;
 
   List<E> asList() {
     List<E> list = [];
@@ -72,10 +70,8 @@ final class Array<E> implements List<E> {
     return list;
   }
 
-  @override
   Iterable<E> get reversed => _list.reversed.cast();
 
-  @override
   void sort([int Function(E a, E b)? compare]) {
     if (compare != null) {
       _list.sort((a, b) => compare(a, b));
@@ -133,31 +129,19 @@ final class Array<E> implements List<E> {
   @override
   E get last => _list[size - 1];
 
-  @override
   set first(E value) {
     _list[0] = value;
   }
 
-  @override
   set last(E value) {
     _list[size - 1] = value;
   }
-
-  @override
-  List<E> operator +(List<E> other) => throw UnimplementedError();
-
-  @override
-  void add(E value) => throw UnimplementedError();
-
-  @override
-  void addAll(Iterable<E> iterable) => throw UnimplementedError();
 
   @override
   bool any(bool Function(E element) test) {
     return _list.any((e) => test(e));
   }
 
-  @override
   Map<int, E> asMap() {
     final Map<int, E> map = {};
     var index = 0;
@@ -168,7 +152,6 @@ final class Array<E> implements List<E> {
     return map;
   }
 
-  @override
   void clear() {
     for (var i = 0; i < size; i++) {
       if (E is int) {
@@ -192,10 +175,6 @@ final class Array<E> implements List<E> {
   @override
   bool every(bool Function(E element) test) => _list.every((e) => test(e));
 
-  @override
-  Iterable<T> expand<T>(Iterable<T> Function(E element) toElements) => throw UnimplementedError();
-
-  @override
   void fillRange(int start, int end, [E? fillValue]) {
     _list.fillRange(start, end, fillValue);
   }
@@ -211,58 +190,42 @@ final class Array<E> implements List<E> {
   }
 
   @override
-  Iterable<E> followedBy(Iterable<E> other) => throw UnimplementedError();
-
-  @override
   void forEach(void Function(E element) action) {
     for (var e in _list) {
       action(e);
     }
   }
 
-  @override
   Iterable<E> getRange(int start, int end) {
     return _list.getRange(start, end).cast();
   }
 
-  @override
   int indexOf(E element, [int start = 0]) {
     return _list.indexOf(element, start);
   }
 
-  @override
   int indexWhere(bool Function(E element) test, [int start = 0]) {
     return _list.indexWhere((e) => test(e), start);
   }
 
-  @override
   void insert(int index, E element) {
     _list[index] = element;
   }
 
-  @override
   void insertAll(int index, Iterable<E> iterable) {}
 
   @override
-  bool get isEmpty => throw UnimplementedError();
-
-  @override
-  bool get isNotEmpty => throw UnimplementedError();
-
-  @override
-  Iterator<E> get iterator => throw UnimplementedError();
+  Iterator<E> get iterator => _ArrayIterator(this);
 
   @override
   String join([String separator = ""]) {
     return _list.join(separator);
   }
 
-  @override
   int lastIndexOf(E element, [int? start]) {
     return _list.lastIndexOf(element, start);
   }
 
-  @override
   int lastIndexWhere(bool Function(E element) test, [int? start]) {
     return _list.lastIndexWhere((e) => test(e), start);
   }
@@ -270,11 +233,6 @@ final class Array<E> implements List<E> {
   @override
   E lastWhere(bool Function(E element) test, {E Function()? orElse}) {
     return _list.lastWhere((e) => test(e), orElse: orElse);
-  }
-
-  @override
-  set length(int newLength) {
-    throw UnimplementedError();
   }
 
   @override
@@ -287,40 +245,18 @@ final class Array<E> implements List<E> {
     return _list.reduce((v, e) => combine(v, e));
   }
 
-  @override
-  bool remove(Object? value) => throw UnimplementedError();
-
-  @override
-  E removeAt(int index) => throw UnimplementedError();
-
-  @override
-  E removeLast() => throw UnimplementedError();
-
-  @override
-  void removeRange(int start, int end) => throw UnimplementedError();
-
-  @override
-  void removeWhere(bool Function(E element) test) => throw UnimplementedError();
-
-  @override
-  void replaceRange(int start, int end, Iterable<E> replacements) => throw UnimplementedError();
-
-  @override
   void retainWhere(bool Function(E element) test) {
     return _list.retainWhere((e) => test(e));
   }
 
-  @override
   void setAll(int index, Iterable<E> iterable) {
     _list.setAll(index, iterable);
   }
 
-  @override
   void setRange(int start, int end, Iterable<E> iterable, [int skipCount = 0]) {
     _list.setRange(start, end, iterable, skipCount);
   }
 
-  @override
   void shuffle([Random? random]) {
     return _list.shuffle(random);
   }
@@ -343,7 +279,6 @@ final class Array<E> implements List<E> {
     return _list.skipWhile((e) => test(e)).cast();
   }
 
-  @override
   List<E> sublist(int start, [int? end]) {
     return _list.sublist(start, end).cast();
   }
@@ -445,6 +380,25 @@ final class Array<E> implements List<E> {
     }
     return -(low + 1);
   }
+}
 
+class _ArrayIterator<E> implements Iterator<E> {
+  final Array<E> array;
 
+  int index = -1;
+
+  _ArrayIterator(this.array);
+
+  @override
+  E get current => array[index];
+
+  @override
+  bool moveNext() {
+    index += 1;
+    if (index < array.length) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

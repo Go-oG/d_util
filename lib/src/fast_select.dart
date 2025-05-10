@@ -13,82 +13,84 @@ import 'dart:math' as math;
 /// quickselect(arr, 8);
 /// arr is [39, 28, 28, 33, 21, 12, 22, 50, 53, 56, 59, 65, 90, 77, 95]
 ///                                         ^^ middle index
-void fastSelect<T>(List<T> arr, int k, [int left = 0, int? right, int Function(T a, T b)? compare]) {
-  if (left < 0) {
-    left = 0;
-  }
-  right ??= arr.length - 1;
-  compare ??= _defaultCompare;
-  _fastSelectStep(arr, k, left, right, compare);
-}
-
-_fastSelectStep<T>(List<T> arr, int k, int left, int right, int Function(T a, T b) compare) {
-  while (right > left) {
-    if (right - left > 600) {
-      int n = right - left + 1;
-      int m = k - left + 1;
-      double z = math.log(n);
-      double s = 0.5 * math.exp(2 * z / 3);
-      double sd = 0.5 * math.sqrt(z * s * (n - s) / n) * (m - n / 2 < 0 ? -1 : 1);
-      int newLeft = math.max(left, (k - m * s / n + sd).floor());
-      int newRight = math.min(right, (k + (n - m) * s / n + sd).floor());
-      _fastSelectStep(arr, k, newLeft, newRight, compare);
+class FastSelect {
+  static void fastSelect<T>(List<T> arr, int k, [int left = 0, int? right, int Function(T a, T b)? compare]) {
+    if (left < 0) {
+      left = 0;
     }
+    right ??= arr.length - 1;
+    compare ??= _defaultCompare;
+    _fastSelectStep(arr, k, left, right, compare);
+  }
 
-    var t = arr[k];
-    var i = left;
-    var j = right;
+  static _fastSelectStep<T>(List<T> arr, int k, int left, int right, int Function(T a, T b) compare) {
+    while (right > left) {
+      if (right - left > 600) {
+        int n = right - left + 1;
+        int m = k - left + 1;
+        double z = math.log(n);
+        double s = 0.5 * math.exp(2 * z / 3);
+        double sd = 0.5 * math.sqrt(z * s * (n - s) / n) * (m - n / 2 < 0 ? -1 : 1);
+        int newLeft = math.max(left, (k - m * s / n + sd).floor());
+        int newRight = math.min(right, (k + (n - m) * s / n + sd).floor());
+        _fastSelectStep(arr, k, newLeft, newRight, compare);
+      }
 
-    _swap(arr, left, k);
-    if (compare(arr[right], t) > 0) _swap(arr, left, right);
+      var t = arr[k];
+      var i = left;
+      var j = right;
 
-    while (i < j) {
-      _swap(arr, i, j);
-      i++;
-      j--;
-      while (compare(arr[i], t) < 0) {
+      _swap(arr, left, k);
+      if (compare(arr[right], t) > 0) _swap(arr, left, right);
+
+      while (i < j) {
+        _swap(arr, i, j);
         i++;
-      }
-      while (compare(arr[j], t) > 0) {
         j--;
+        while (compare(arr[i], t) < 0) {
+          i++;
+        }
+        while (compare(arr[j], t) > 0) {
+          j--;
+        }
       }
+
+      if (compare(arr[left], t) == 0) {
+        _swap(arr, left, j);
+      } else {
+        j++;
+        _swap(arr, j, right);
+      }
+      if (j <= k) left = j + 1;
+      if (k <= j) right = j - 1;
+    }
+  }
+
+  static void _swap<T>(List<T> arr, int i, int j) {
+    var tmp = arr[i];
+    arr[i] = arr[j];
+    arr[j] = tmp;
+  }
+
+  static int _defaultCompare<T>(T a, T b) {
+    if (a is Comparable) {
+      return a.compareTo(b);
+    }
+    if (a is num) {
+      var t = b as num;
+      return a < b
+          ? -1
+          : a > b
+              ? 1
+              : 0;
     }
 
-    if (compare(arr[left], t) == 0) {
-      _swap(arr, left, j);
-    } else {
-      j++;
-      _swap(arr, j, right);
-    }
-    if (j <= k) left = j + 1;
-    if (k <= j) right = j - 1;
-  }
-}
-
-void _swap<T>(List<T> arr, int i, int j) {
-  var tmp = arr[i];
-  arr[i] = arr[j];
-  arr[j] = tmp;
-}
-
-int _defaultCompare<T>(T a, T b) {
-  if (a is Comparable) {
-    return a.compareTo(b);
-  }
-  if (a is num) {
-    var t = b as num;
-    return a < b
+    var a1 = a.hashCode;
+    var b2 = b.hashCode;
+    return a1 < b2
         ? -1
-        : a > b
-        ? 1
-        : 0;
+        : a1 > b2
+            ? 1
+            : 0;
   }
-
-  var a1 = a.hashCode;
-  var b2 = b.hashCode;
-  return a1 < b2
-      ? -1
-      : a1 > b2
-      ? 1
-      : 0;
 }

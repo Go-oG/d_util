@@ -1,4 +1,4 @@
-class Stack<E> {
+class Stack<E> with Iterable<E> {
   final List<E> _list = [];
 
   void push(E e) {
@@ -13,8 +13,13 @@ class Stack<E> {
 
   E get(int index) => _list[index];
 
+  @override
+  E get last => _list[_list.length - 1];
+
+  @override
   bool get isEmpty => _list.isEmpty;
 
+  @override
   bool get isNotEmpty => _list.isNotEmpty;
 
   E peek() => _list.last;
@@ -23,5 +28,6 @@ class Stack<E> {
     _list.add(e);
   }
 
-
+  @override
+  Iterator<E> get iterator => _list.iterator;
 }
