@@ -307,81 +307,42 @@ extension ListExt<E> on List<E> {
     return -1;
   }
 
-  ///找到比目标值大的第一个索引
-  ///没找到返回-1
-  int findFirstGreaterThanIndex(E target, CompareFun<E> compare) {
-    return findFirstGreaterThanIndex2(target, (a, b) => compare(a, b));
-  }
-
-  int findFirstGreaterThanIndex2<T>(T target, int Function(E a, T b) compare) {
-    int left = 0;
-    int right = length - 1;
-    int result = -1;
-    while (left <= right) {
-      int mid = left + ((right - left) ~/ 2);
-      int c = compare(this[mid], target);
-      if (c > 0) {
-        result = mid;
-        right = mid - 1;
-      } else {
-        left = mid + 1;
-      }
-    }
-    return result;
-  }
-
-  ///找到比目标值小的第一个索引
-  ///没找到返回-1
-  int findFirstLessThanIndex(E target, CompareFun<E> compare) {
-    int left = 0;
-    int right = length - 1;
-    int result = -1;
-
-    while (left <= right) {
-      int mid = left + ((right - left) ~/ 2);
-      int c = compare(this[mid], target);
-      if (c < 0) {
-        result = mid;
-        left = mid + 1;
-      } else {
-        right = mid - 1;
-      }
-    }
-    return result;
-  }
-
-  int findUpIndex(E value, CompareFun<E> compare) {
+  ///有序列表中查找第一个大于目标值的元素的位置（index）
+  /// 如果没有返回-1
+  int firstMoreThanIndex<K>(K target, int Function(E a, K b) compare) {
     int low = 0;
     int high = length;
     while (low < high) {
-      final int mid = (low + high) ~/ 2;
-      if (compare(value, this[mid]) >= 0) {
+      int mid = (low + high) >> 1;
+      if (compare(this[mid], target) <= 0) {
         low = mid + 1;
       } else {
         high = mid;
       }
     }
-    return low;
+
+    return low < length ? low : -1;
   }
 
-  int lowerBoundIndex(E value, CompareFun<E> compare) {
+  ///查找最后一个小于目标值元素的位置（index）
+  ///如果没有返回 -1
+  int lastLessThanIndex<K>(K target, int Function(E a, K b) compare) {
     int low = 0;
-    int high = length;
-    while (low < high) {
-      final int mid = (low + high) ~/ 2;
-      if (compare(value, this[mid]) <= 0) {
-        high = mid;
-      } else {
+    int high = length - 1;
+    int result = -1;
+    while (low <= high) {
+      int mid = (low + high) >> 1;
+      if (compare(this[mid], target) < 0) {
+        result = mid;
         low = mid + 1;
+      } else {
+        high = mid - 1;
       }
     }
-    return low;
+    return result;
   }
 
-  List<E> copy() {
-    return List.from(this);
-  }
-
+  List<E> copy()=> List.from(this);
 
 }
 

@@ -9,6 +9,7 @@ export 'src/check.dart';
 export 'src/exceptions.dart';
 export 'src/fast_select.dart';
 export 'src/js_util.dart';
+export 'src/list.dart';
 export 'src/list_ext.dart';
 export 'src/map_ext.dart';
 export 'src/math.dart';
