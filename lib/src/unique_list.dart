@@ -100,8 +100,8 @@ class UniqueList<E> implements Iterable<E> {
 
   void operator []=(int index, E value) => insert(index, value);
 
-  void add(E value) {
-    insert(_list.length, value);
+  bool add(E value) {
+    return insert(_list.length, value);
   }
 
   void addAll(Iterable<E> iterable) {

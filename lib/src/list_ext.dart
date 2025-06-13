@@ -175,9 +175,16 @@ extension ListExt<E> on List<E> {
 
   E get(int index) => this[index];
 
+  E? getOrNull(int index) {
+    if (index < 0 || index >= length) {
+      return null;
+    }
+    return this[index];
+  }
+
   int get size => length;
 
-  void sort2(CComparator<E> comparator) {
+  void sortWith(CComparator<E> comparator) {
     sort((a, b) => comparator.compare(a, b));
   }
 
@@ -308,8 +315,8 @@ extension ListExt<E> on List<E> {
   }
 
   ///有序列表中查找第一个大于目标值的元素的位置（index）
-  /// 如果没有返回-1
-  int firstMoreThanIndex<K>(K target, int Function(E a, K b) compare) {
+  /// 如果没有返回[notIndex]
+  int firstMoreThanIndex<K>(K target, int Function(E a, K b) compare, [int notIndex = -1]) {
     int low = 0;
     int high = length;
     while (low < high) {
@@ -320,13 +327,15 @@ extension ListExt<E> on List<E> {
         high = mid;
       }
     }
-
-    return low < length ? low : -1;
+    if (low < length) {
+      return low;
+    }
+    return notIndex;
   }
 
   ///查找最后一个小于目标值元素的位置（index）
   ///如果没有返回 -1
-  int lastLessThanIndex<K>(K target, int Function(E a, K b) compare) {
+  int lastLessThanIndex<K>(K target, int Function(E a, K b) compare, [int notIndex = -1]) {
     int low = 0;
     int high = length - 1;
     int result = -1;
@@ -339,10 +348,14 @@ extension ListExt<E> on List<E> {
         high = mid - 1;
       }
     }
+    if (result == -1) {
+      return notIndex;
+    }
     return result;
   }
 
-  List<E> copy()=> List.from(this);
+  List<E> copy() => List.from(this);
+
 
 }
 
