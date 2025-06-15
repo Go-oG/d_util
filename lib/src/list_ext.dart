@@ -19,77 +19,40 @@ extension IterableExt<E> on Iterable<E> {
     }
   }
 
-  E min(CompareFun<E> compare) {
-    _checkEmpty();
-
+  E? minBy(CompareFun<E> compare) {
     E? minV;
     for (var item in this) {
       if (minV == null) {
         minV = item;
       } else {
-        var c = compare(minV, item);
-        if (c > 0) {
-          minV = item;
-        }
-      }
-    }
-    return minV!;
-  }
-
-  E minBy(CompareFun2<E> compare) {
-    _checkEmpty();
-    E? minV;
-    for (var item in this) {
-      if (minV == null) {
-        minV = item;
-      } else {
-        final a = compare(item);
-        final b = compare(minV);
-        var c = a.compareTo(b);
+        var c = compare(item, minV);
         if (c < 0) {
           minV = item;
         }
       }
     }
-    return minV!;
+    return minV;
   }
 
-  E max(CompareFun<E> compare) {
-    _checkEmpty();
+  E? maxBy(CompareFun<E> compare) {
     E? maxV;
     for (var item in this) {
       if (maxV == null) {
         maxV = item;
       } else {
-        var c = compare(maxV, item);
-        if (c < 0) {
-          maxV = item;
-        }
-      }
-    }
-    return maxV!;
-  }
-
-  E maxBy(CompareFun2<E> compare) {
-    _checkEmpty();
-    E? maxV;
-    for (var item in this) {
-      if (maxV == null) {
-        maxV = item;
-      } else {
-        final a = compare(item);
-        final b = compare(maxV);
-        var c = a.compareTo(b);
+        var c = compare(item, maxV);
         if (c > 0) {
           maxV = item;
         }
       }
     }
-    return maxV!;
+    return maxV;
   }
 
   List<E> extreme(CompareFun<E> compare) {
-    _checkEmpty();
+    if (isEmpty) {
+      return [];
+    }
 
     List<E> list = [];
     E? minV;
@@ -124,7 +87,7 @@ extension IterableExt<E> on Iterable<E> {
     return sum;
   }
 
-  void _checkEmpty() {
+  void checkEmpty() {
     if (isEmpty) {
       throw StateError("Cannot find minimum of empty collection");
     }
@@ -234,10 +197,15 @@ extension ListExt<E> on List<E> {
   }
 
   void reverseSelf() {
-    ///TODO使用更高效算法
-    List<E> rl = List.from(reversed);
-    clear();
-    addAll(rl);
+    int left = 0;
+    int right = length - 1;
+    while (left < right) {
+      final temp = this[left];
+      this[left] = this[right];
+      this[right] = temp;
+      left++;
+      right--;
+    }
   }
 
   List<E> toUnionList() {
@@ -355,8 +323,6 @@ extension ListExt<E> on List<E> {
   }
 
   List<E> copy() => List.from(this);
-
-
 }
 
 class ListIterator<T> {

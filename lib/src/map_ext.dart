@@ -2,7 +2,6 @@ import 'types.dart';
 import 'list_ext.dart';
 
 extension MapExt<K, V> on Map<K, V> {
-
   void set(K k, V value) => this[k] = value;
 
   void put(K k, V value) => this[k] = value;
@@ -43,19 +42,11 @@ extension MapExt<K, V> on Map<K, V> {
     }
   }
 
-  MapEntry<K, V> min(CompareFun<MapEntry<K, V>> compare) {
-    return entries.min(compare);
-  }
-
-  MapEntry<K, V> minBy(CompareFun2<MapEntry<K, V>> compare) {
+  MapEntry<K, V>? minBy(CompareFun<MapEntry<K, V>> compare) {
     return entries.maxBy(compare);
   }
 
-  MapEntry<K, V> max(CompareFun<MapEntry<K, V>> compare) {
-    return entries.max(compare);
-  }
-
-  MapEntry<K, V> maxBy(CompareFun2<MapEntry<K, V>> compare) {
+  MapEntry<K, V>? maxBy(CompareFun<MapEntry<K, V>> compare) {
     return entries.maxBy(compare);
   }
 
@@ -78,5 +69,4 @@ extension MapExt<K, V> on Map<K, V> {
     }
     return resultMap;
   }
-
 }
