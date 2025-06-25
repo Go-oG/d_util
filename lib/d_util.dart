@@ -15,6 +15,7 @@ export 'src/math.dart';
 export 'src/model.dart';
 export 'src/random_id.dart';
 export 'src/set_ext.dart';
+export 'src/sorted_list.dart';
 export 'src/stack.dart';
 export 'src/types.dart';
 export 'src/unique_list.dart';

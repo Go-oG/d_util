@@ -3,7 +3,7 @@ import 'dart:math';
 enum ConflictAlg { dropOld, dropNew }
 
 ///它在保证唯一性的同时额外记录了索引信息
-class UniqueList<E> implements Iterable<E> {
+class UniqueList<E> implements List<E> {
   late final ConflictAlg alg;
   final Map<E, int> _set = {};
   final List<E> _list = [];
@@ -94,31 +94,40 @@ class UniqueList<E> implements Iterable<E> {
   @override
   Iterable<T> whereType<T>() => _list.whereType();
 
+  @override
   List<E> operator +(List<E> other) => _list + other;
 
+  @override
   E operator [](int index) => _list[index];
 
+  @override
   void operator []=(int index, E value) => insert(index, value);
 
+  @override
   bool add(E value) {
     return insert(_list.length, value);
   }
 
+  @override
   void addAll(Iterable<E> iterable) {
     for (var value in iterable) {
       add(value);
     }
   }
 
+  @override
   Map<int, E> asMap() => _list.asMap();
 
+  @override
   void clear() {
     _list.clear();
     _set.clear();
   }
 
+  @override
   Iterable<E> getRange(int start, int end) => _list.getRange(start, end);
 
+  @override
   int indexOf(E element, [int start = 0]) {
     final index = _set[element];
     if (index == null || index < start) {
@@ -127,8 +136,10 @@ class UniqueList<E> implements Iterable<E> {
     return index;
   }
 
+  @override
   int indexWhere(bool Function(E element) test, [int start = 0]) => _list.indexWhere(test, start);
 
+  @override
   bool insert(int index, E element) {
     if (!_set.containsKey(element)) {
       _list.insert(index, element);
@@ -162,6 +173,7 @@ class UniqueList<E> implements Iterable<E> {
     return true;
   }
 
+  @override
   void insertAll(int index, Iterable<E> values) {
     var startIndex = index;
     for (var value in values) {
@@ -171,10 +183,13 @@ class UniqueList<E> implements Iterable<E> {
     }
   }
 
+  @override
   int lastIndexOf(E element, [int? start]) => _list.lastIndexOf(element, start);
 
+  @override
   int lastIndexWhere(bool Function(E element) test, [int? start]) => _list.lastIndexWhere(test, start);
 
+  @override
   bool remove(Object? value) {
     if (_set.remove(value) != null) {
       return _list.remove(value);
@@ -182,41 +197,50 @@ class UniqueList<E> implements Iterable<E> {
     return false;
   }
 
+  @override
   E removeAt(int index) {
     final e = _list.removeAt(index);
     _set.remove(e);
     return e;
   }
 
+  @override
   E removeLast() {
     return removeAt(_list.length - 1);
   }
 
+  @override
   void removeRange(int start, int end) {
     for (var i = start; i < end; i++) {
       removeAt(i);
     }
   }
 
+  @override
   void removeWhere(bool Function(E element) test) {
     _list.removeWhere(test);
     _set.removeWhere((k, v) => test(k));
   }
 
+  @override
   void retainWhere(bool Function(E element) test) => _list.retainWhere(test);
 
+  @override
   Iterable<E> get reversed => _list.reversed;
 
+  @override
   void shuffle([Random? random]) {
     _list.shuffle(random);
     _adjustIndex();
   }
 
+  @override
   void sort([int Function(E a, E b)? compare]) {
     _list.sort(compare);
     _adjustIndex();
   }
 
+  @override
   List<E> sublist(int start, [int? end]) => _list.sublist(start, end);
 
   void _adjustIndex() {
@@ -237,4 +261,35 @@ class UniqueList<E> implements Iterable<E> {
   String toString() {
     return _list.toString();
   }
+
+  @override
+  void fillRange(int start, int end, [E? fillValue]) => throw UnsupportedError("");
+
+  @override
+  set first(E value) {
+    removeAt(0);
+    insert(0, value);
+  }
+
+  @override
+  set last(E value) {
+    if (isEmpty) {
+      add(value);
+      return;
+    }
+    removeLast();
+    add(value);
+  }
+
+  @override
+  set length(int newLength) => throw UnsupportedError("");
+
+  @override
+  void replaceRange(int start, int end, Iterable<E> replacements) => throw UnsupportedError("");
+
+  @override
+  void setAll(int index, Iterable<E> iterable) => throw UnsupportedError("");
+
+  @override
+  void setRange(int start, int end, Iterable<E> iterable, [int skipCount = 0]) => throw UnsupportedError("");
 }

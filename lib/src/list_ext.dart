@@ -238,27 +238,18 @@ extension ListExt<E> on List<E> {
   }
 
   ///找到插入位置,调用该方法时List必须为已排序
-  int findInsertIndex(E data, CompareFun<E> compare) {
-    if (isEmpty) {
-      return 0;
-    }
-    int left = 0;
-    int right = length - 1;
-    int mid = 0;
-    while (left < right) {
-      mid = left + (right - left) ~/ 2;
-      final md = this[mid];
-      int c = compare(data, md);
-      if (c == 0) {
-        return mid;
-      }
-      if (c > 0) {
-        left = mid + 1;
+  int findInsertIndex(E value, CompareFun<E> compare) {
+    int low = 0;
+    int high = length;
+    while (low < high) {
+      int mid = (low + high) >> 1;
+      if (compare(value, this[mid]) < 0) {
+        high = mid;
       } else {
-        right = mid - 1;
+        low = mid + 1;
       }
     }
-    return left;
+    return low;
   }
 
   ///找到数据位置,List 必须为已排序
