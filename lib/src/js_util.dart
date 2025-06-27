@@ -1,7 +1,7 @@
 /// 模拟javaScript a&& b的返回值
-dynamic jsAnd(dynamic a, dynamic b) {
-  bool b1 = jsTrue(a);
-  bool b2 = jsTrue(b);
+dynamic ifAnd(dynamic a, dynamic b) {
+  bool b1 = isTrue(a);
+  bool b2 = isTrue(b);
   if (b1 == b2) {
     if (b1) {
       ///两个都为 true
@@ -20,9 +20,9 @@ dynamic jsAnd(dynamic a, dynamic b) {
 }
 
 /// 模拟javaScript a || b的返回值
-dynamic jsOr(dynamic a, dynamic b) {
-  bool b1 = jsTrue(a);
-  bool b2 = jsTrue(b);
+dynamic ifOr(dynamic a, dynamic b) {
+  bool b1 = isTrue(a);
+  bool b2 = isTrue(b);
   if (b1 || b2) {
     if (b1 && b2) {
       return a;
@@ -37,18 +37,18 @@ dynamic jsOr(dynamic a, dynamic b) {
 }
 
 /// 模拟JavaScript a&&b 的bool 返回值
-bool jsBoolAnd(dynamic a, dynamic b) {
-  return jsTrue(jsAnd(a, b));
+bool boolAnd(dynamic a, dynamic b) {
+  return isTrue(ifAnd(a, b));
 }
 
 /// 模拟JavaScript a||b 的bool 返回值
-bool jsBoolOr(num a, num b) {
-  return jsTrue(jsOr(a, b));
+bool boolOr(num a, num b) {
+  return isTrue(ifOr(a, b));
 }
 
 ///模拟js 对象为真判断
 ///判断一个数是否为真(0,"",null为假)
-bool jsTrue(dynamic obj) {
+bool isTrue(dynamic obj) {
   if (obj == null) {
     return false;
   }
@@ -66,6 +66,6 @@ bool jsTrue(dynamic obj) {
 }
 
 /// 模拟js 三目运算符返回结果
-int jsBool2Int(bool a) {
+int bool2Int(bool a) {
   return a ? 1 : 0;
 }
