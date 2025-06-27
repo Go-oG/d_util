@@ -7,7 +7,7 @@ export 'package:uuid/uuid_value.dart';
 export 'src/array.dart';
 export 'src/check.dart';
 export 'src/exceptions.dart';
-export 'src/fast_select.dart';
+export 'src/selecter.dart';
 export 'src/js_util.dart';
 export 'src/list_ext.dart';
 export 'src/map_ext.dart';
