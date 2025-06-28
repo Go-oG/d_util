@@ -131,6 +131,26 @@ extension IterableExt<E> on Iterable<E> {
     }
     return rl;
   }
+
+  Map<E, K> keyMap<K>(K Function(E key, int index) valueFun) {
+    Map<E, K> map = {};
+    int index = 0;
+    for (var item in this) {
+      map[item] = valueFun(item, index);
+      index++;
+    }
+    return map;
+  }
+
+  Map<V, E> valueMap<V>(V Function(E key, int index) keyFun) {
+    Map<V, E> map = {};
+    int index = 0;
+    for (var item in this) {
+      map[keyFun(item, index)] = item;
+      index++;
+    }
+    return map;
+  }
 }
 
 extension ListExt<E> on List<E> {
