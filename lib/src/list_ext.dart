@@ -7,6 +7,7 @@ extension IterableExt<E> on Iterable<E> {
     var i = 0;
     for (var item in this) {
       array[i] = item;
+      i++;
     }
     return array;
   }

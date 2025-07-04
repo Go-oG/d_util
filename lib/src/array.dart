@@ -3,7 +3,7 @@ import 'dart:math';
 import 'math.dart';
 import 'types.dart';
 
-final class Array<E> with Iterable<E> {
+final class Array<E> implements Iterable<E> {
   late final List<dynamic> _list;
 
   final int size;
@@ -380,6 +380,18 @@ final class Array<E> with Iterable<E> {
     }
     return -(low + 1);
   }
+
+  @override
+  Iterable<T> expand<T>(Iterable<T> Function(E element) toElements) => throw UnimplementedError();
+
+  @override
+  Iterable<E> followedBy(Iterable<E> other) => throw UnimplementedError();
+
+  @override
+  bool get isEmpty => size == 0;
+
+  @override
+  bool get isNotEmpty => size > 0;
 }
 
 class _ArrayIterator<E> implements Iterator<E> {
