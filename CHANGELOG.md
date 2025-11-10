@@ -1,3 +1,8 @@
+## 1.1.3
+
+Fixed maximum and minimum values in web platform error
+
 ## 0.0.1
 
-* TODO: Describe initial release.
+* : Describe initial release.
+

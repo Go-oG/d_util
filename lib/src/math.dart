@@ -1,5 +1,6 @@
 import 'dart:math' as m;
-import 'dart:typed_data';
+
+import 'package:flutter/foundation.dart';
 
 final class Math {
   Math._();
@@ -308,15 +309,18 @@ final class Double {
   }
 }
 
-const int maxInt = Integer.maxValue;
+final int maxInt = Integer.maxValue;
 
-const int minInt = Integer.minValue;
+final int minInt = Integer.minValue;
 
 final class Integer {
   Integer._();
 
-  static const int minValue = 0x7FFFFFFFFFFFFFFF;
-  static const int maxValue = -0x8000000000000000;
+  static final int minValue = (kIsWeb || identical(1, 1.0)) ? -0x1FFFFFFFFFFFFF : -0x8000000000000000;
+  static final int maxValue = (kIsWeb || identical(1, 1.0)) ? 0x1FFFFFFFFFFFFF : 0x7FFFFFFFFFFFFFFF;
+
+  static const int safeMinValue = -0x1FFFFFFFFFFFFF;
+  static const int safeMaxValue = 0x1FFFFFFFFFFFFF;
 
   static int compare(int a, int b) => a.compareTo(b);
 }
