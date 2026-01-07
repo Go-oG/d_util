@@ -1,4 +1,5 @@
 import 'dart:math' as m;
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 
@@ -270,23 +271,18 @@ final class Double {
   static int hashCode2(num value) => value.hashCode;
 
   static int doubleToLongBits(double value) {
-    var buffer = ByteData(8);
-    buffer.setFloat64(0, value, Endian.host);
-    return buffer.getUint64(0, Endian.host);
+    final f64 = Float64List(1);
+    f64[0] = value;
+    return f64.buffer.asUint64List()[0];
   }
 
   static double longBitsToDouble(int bits) {
-    if (bits < 0 || bits > 0xFFFFFFFFFFFFFFFF) {
-      throw ArgumentError('Value must be a 64-bit integer');
-    }
-    var byteData = ByteData(8);
-    byteData.setUint64(0, bits, Endian.host);
-    return byteData.getFloat64(0, Endian.host);
+    final u64 = Uint64List(1);
+    u64[0] = bits;
+    return u64.buffer.asFloat64List()[0];
   }
 
-  static int doubleToRawLongBits(double value) {
-    return doubleToLongBits(value);
-  }
+  static int doubleToRawLongBits(double value) => doubleToLongBits(value);
 
   static double sum(num a, num b) {
     return (a + b).toDouble();

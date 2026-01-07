@@ -17,10 +17,10 @@ import 'dart:math' as math;
 ///                                         ^^ middle index
 class FastSelect {
   static void fastSelect<T>(List<T> arr, int k, [int left = 0, int? right, int Function(T a, T b)? compare]) {
-    if (left < 0) {
-      left = 0;
-    }
+    if (left < 0) left = 0;
     right ??= arr.length - 1;
+    if (right >= arr.length) right = arr.length - 1;
+    if (k < left || k > right) return;
     compare ??= _defaultCompare;
     _fastSelectStep(arr, k, left, right, compare);
   }
