@@ -1,4 +1,4 @@
-import 'types.dart';
+import '../types.dart';
 import 'list_ext.dart';
 
 extension MapExt<K, V> on Map<K, V> {
@@ -33,7 +33,6 @@ extension MapExt<K, V> on Map<K, V> {
     }
   }
 
-  ///按照key排序后的顺序访问
   void eachSort(CompareFun<K> compare, Function(K key, V value) fun) {
     List<K> keyList = List.from(keys);
     keyList.sort(compare);

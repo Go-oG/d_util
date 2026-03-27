@@ -1,5 +1,5 @@
-import 'array.dart';
-import 'types.dart';
+import '../struct/array.dart';
+import '../types.dart';
 
 extension IterableExt<E> on Iterable<E> {
   Array<E> toArray() {
@@ -191,6 +191,9 @@ extension ListExt<E> on List<E> {
   }
 
   void reduplicate() {
+    if (length <= 1) {
+      return;
+    }
     Set<E> unionSet = <E>{};
     int i = 0;
     while (i < length) {
@@ -258,83 +261,62 @@ extension ListExt<E> on List<E> {
     insert(0, value);
   }
 
-  ///找到插入位置,调用该方法时List必须为已排序
-  int findInsertIndex(E value, CompareFun<E> compare) {
+  List<E> copy() => List.from(this);
+
+  /// 第一个 >= target 的位置
+  /// 如果不存在，则返回 length
+  int lowerBound<K>(K target, CompareWith<K, E> compare) {
     int low = 0;
     int high = length;
     while (low < high) {
-      int mid = (low + high) >> 1;
-      if (compare(value, this[mid]) < 0) {
-        high = mid;
-      } else {
+      final mid = low + ((high - low) >> 1);
+      if (compare(this[mid], target) < 0) {
         low = mid + 1;
+      } else {
+        high = mid;
       }
     }
     return low;
   }
 
-  ///找到数据位置,List 必须为已排序
-  ///没找到返回-1
-  int findIndex(E value, CompareFun<E> compare) {
-    int left = 0;
-    int right = length;
-    while (left < right) {
-      final int mid = left + ((right - left) >> 1);
-      final element = this[mid];
-      final int comp = compare(element, value);
-      if (comp == 0) {
-        return mid;
-      }
-      if (comp < 0) {
-        left = mid + 1;
-      } else {
-        right = mid;
-      }
-    }
-    return -1;
-  }
-
-  ///有序列表中查找第一个大于目标值的元素的位置（index）
-  /// 如果没有返回[notIndex]
-  int firstMoreThanIndex<K>(K target, int Function(E a, K b) compare, [int notIndex = -1]) {
+  /// 第一个 > target 的位置
+  /// 如果不存在，则返回 length
+  int upperBound<K>(K target, CompareWith<K, E> compare) {
     int low = 0;
     int high = length;
     while (low < high) {
-      int mid = (low + high) >> 1;
+      final mid = low + ((high - low) >> 1);
       if (compare(this[mid], target) <= 0) {
         low = mid + 1;
       } else {
         high = mid;
       }
     }
-    if (low < length) {
-      return low;
-    }
-    return notIndex;
+    return low;
   }
 
-  ///查找最后一个小于目标值元素的位置（index）
-  ///如果没有返回 -1
-  int lastLessThanIndex<K>(K target, int Function(E a, K b) compare, [int notIndex = -1]) {
-    int low = 0;
-    int high = length - 1;
-    int result = -1;
-    while (low <= high) {
-      int mid = (low + high) >> 1;
-      if (compare(this[mid], target) < 0) {
-        result = mid;
-        low = mid + 1;
-      } else {
-        high = mid - 1;
-      }
+  /// 二分查找等于 target 的元素位置
+  /// 没找到返回 [notFound]
+  int binarySearchIndex<K>(K target, CompareWith<K, E> compare, [int notFound = -1]) {
+    if (isEmpty) {
+      return notFound;
     }
-    if (result == -1) {
-      return notIndex;
+    final index = lowerBound(target, compare);
+    if (index < length && compare(this[index], target) == 0) {
+      return index;
     }
-    return result;
+    return notFound;
   }
 
-  List<E> copy() => List.from(this);
+  /// 最后一个 < target 的元素位置
+  /// 没有则返回 [notFound]
+  int lastLessThanIndex<K>(K target, CompareWith<K, E> compare, [int notFound = -1]) {
+    if (isEmpty) {
+      return notFound;
+    }
+    final index = lowerBound(target, compare) - 1;
+    return index >= 0 ? index : notFound;
+  }
 }
 
 class ListIterator<T> {

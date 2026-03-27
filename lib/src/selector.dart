@@ -75,20 +75,21 @@ class FastSelect {
   }
 
   static int _defaultCompare<T>(T a, T b) {
-    if (a is Comparable) {
-      return a.compareTo(b);
-    }
     if (a is num) {
-      var t = b as num;
+      b as num;
       return a < b
           ? -1
           : a > b
               ? 1
               : 0;
     }
+    if (a is Comparable) {
+      return a.compareTo(b);
+    }
 
     var a1 = a.hashCode;
     var b2 = b.hashCode;
+
     return a1 < b2
         ? -1
         : a1 > b2
@@ -97,55 +98,49 @@ class FastSelect {
   }
 }
 
-class QuickFind {
-  static final _kRandom = math.Random();
-
-  static int quickFind<T>(T value, List<T> array, Comparator<T> compare) {
-    List<T?> unsorted = array;
-    List<T?> temp = List.filled(unsorted.length, null);
-
-    int tempLength = unsorted.length;
-    int length = tempLength;
-    T pivot = unsorted[0] as T;
-    while (length > 0) {
-      length = tempLength;
-      pivot = unsorted[_kRandom.nextInt(length)]!;
-      tempLength = 0;
-      for (int i = 0; i < length; i++) {
-        T iValue = unsorted[i] as T;
-        if (value == iValue) {
-          return i;
-        }
-        final c = compare(value, pivot);
-        final c2 = compare(iValue, pivot);
-        if (c > 0 && c2 > 0) {
-          temp[tempLength++] = iValue;
-        } else if (c < 0 && c2 < 0) {
-          temp[tempLength++] = iValue;
-        }
-      }
-      unsorted = temp;
-      length = tempLength;
-    }
-
-    return -1;
-  }
-}
-
-///在未排序列表中查找第 k 小的元素（0-based）
+/// 在未排序列表中选择第 k 小的元素（0-based）
+///
+/// - 会原地修改 [list] 的元素顺序
+/// - 平均时间复杂度 O(n)
+/// - 最坏情况下通过回退排序避免持续劣化
+///
+/// 约束：
+/// - [k] 必须在 `[0, list.length)` 范围内
+/// - 如果未传 [compare]，则元素类型 [T] 必须可比较，即实现了 [Comparable]
+///
+/// 示例：
+/// ```dart
+/// final list = [7, 2, 9, 1, 5];
+/// final v = IntroSelect.select(list, 2);
+/// // v == 5
+/// // 此时 list 已被部分重排，但不保证整体有序
+/// ```
 class IntroSelect {
-  static T introSelect<T>(List<T> list, int k, {Comparator<T>? compare}) {
-    if (list.isEmpty || k < 0 || k >= list.length) {
-      throw ArgumentError('Invalid input or k out of range');
+  /// 返回列表中第 k 小的元素（0-based）
+  /// - `k = 0` 表示最小值
+  /// - `k = list.length - 1` 表示最大值
+  static T select<T>(
+    List<T> list,
+    int k, {
+    Comparator<T>? compare,
+  }) {
+    if (list.isEmpty) {
+      throw ArgumentError.value(list, 'list', 'list must not be empty');
+    }
+    if (k < 0 || k >= list.length) {
+      throw RangeError.range(k, 0, list.length - 1, 'k');
     }
 
-    final comparator = compare ?? (a, b) => (a as Comparable).compareTo(b);
+    final cmp = compare ?? _defaultComparator<T>;
+    if (list.length == 1) {
+      return list[0];
+    }
 
-    final int maxDepth = (2 * (math.log(list.length) ~/ math.ln2)).toInt();
-    return _introSelect(list, 0, list.length - 1, k, maxDepth, comparator);
+    final depthLimit = _maxDepth(list.length);
+    return _selectRange(list, 0, list.length - 1, k, depthLimit, cmp);
   }
 
-  static T _introSelect<T>(
+  static T _selectRange<T>(
     List<T> list,
     int left,
     int right,
@@ -153,27 +148,37 @@ class IntroSelect {
     int depthLimit,
     Comparator<T> compare,
   ) {
-    while (left < right) {
-      if (depthLimit == 0) {
-        _heapSelect(list, left, right, k, compare);
+    var l = left;
+    var r = right;
+    var depth = depthLimit;
+
+    while (l < r) {
+      // 小区间直接排序，减少递归/分区常数
+      if (r - l <= 24) {
+        _sortRange(list, l, r, compare);
         return list[k];
       }
 
-      depthLimit--;
+      // 深度耗尽时回退到区间排序，保证实现稳健
+      if (depth == 0) {
+        _sortRange(list, l, r, compare);
+        return list[k];
+      }
+      depth--;
 
-      final pivotIndex = _medianOfThree(list, left, right, compare);
-      final newPivotIndex = _partition(list, left, right, pivotIndex, compare);
+      final pivotIndex = _medianOfThree(list, l, r, compare);
+      final newPivotIndex = _partition(list, l, r, pivotIndex, compare);
 
       if (k == newPivotIndex) {
         return list[k];
       } else if (k < newPivotIndex) {
-        right = newPivotIndex - 1;
+        r = newPivotIndex - 1;
       } else {
-        left = newPivotIndex + 1;
+        l = newPivotIndex + 1;
       }
     }
 
-    return list[left];
+    return list[l];
   }
 
   static int _partition<T>(
@@ -185,9 +190,9 @@ class IntroSelect {
   ) {
     final pivotValue = list[pivotIndex];
     _swap(list, pivotIndex, right);
-    int storeIndex = left;
 
-    for (int i = left; i < right; i++) {
+    var storeIndex = left;
+    for (var i = left; i < right; i++) {
       if (compare(list[i], pivotValue) < 0) {
         _swap(list, storeIndex, i);
         storeIndex++;
@@ -205,44 +210,55 @@ class IntroSelect {
     Comparator<T> compare,
   ) {
     final mid = left + ((right - left) >> 1);
-    final a = list[left];
-    final b = list[mid];
-    final c = list[right];
 
-    if (compare(a, b) < 0) {
-      if (compare(b, c) < 0) {
-        return mid;
-      } else if (compare(a, c) < 0) {
-        return right;
-      } else {
-        return left;
-      }
-    } else {
-      if (compare(a, c) < 0) {
-        return left;
-      } else if (compare(b, c) < 0) {
-        return right;
-      } else {
-        return mid;
-      }
+    if (compare(list[left], list[mid]) > 0) {
+      _swap(list, left, mid);
     }
+    if (compare(list[left], list[right]) > 0) {
+      _swap(list, left, right);
+    }
+    if (compare(list[mid], list[right]) > 0) {
+      _swap(list, mid, right);
+    }
+
+    return mid;
   }
 
-  static void _swap<T>(List<T> list, int i, int j) {
-    if (i != j) {
-      final tmp = list[i];
-      list[i] = list[j];
-      list[j] = tmp;
-    }
-  }
-
-  static void _heapSelect<T>(
+  static void _sortRange<T>(
     List<T> list,
     int left,
     int right,
-    int k,
     Comparator<T> compare,
   ) {
-    list.setRange(left, right + 1, list.sublist(left, right + 1)..sort(compare));
+    final sorted = list.sublist(left, right + 1)..sort(compare);
+    list.setRange(left, right + 1, sorted);
+  }
+
+  static void _swap<T>(List<T> list, int i, int j) {
+    if (i == j) {
+      return;
+    }
+    final tmp = list[i];
+    list[i] = list[j];
+    list[j] = tmp;
+  }
+
+  static int _maxDepth(int length) {
+    // 2 * floor(log2(n))
+    return math.max(1, 2 * (math.log(length) / math.ln2).floor());
+  }
+
+  static int _defaultComparator<T>(T a, T b) {
+    final aa = a;
+    if (aa is Comparable<T>) {
+      return aa.compareTo(b);
+    }
+    if (aa is Comparable) {
+      return aa.compareTo(b);
+    }
+    throw ArgumentError(
+      'No comparator provided for type $T. '
+      'Pass compare explicitly or make the type implement Comparable.',
+    );
   }
 }

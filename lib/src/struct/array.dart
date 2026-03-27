@@ -1,7 +1,7 @@
 import 'dart:math';
 
-import 'math.dart';
-import 'types.dart';
+import '../math.dart';
+import '../types.dart';
 
 final class Array<E> implements Iterable<E> {
   late final List<dynamic> _list;

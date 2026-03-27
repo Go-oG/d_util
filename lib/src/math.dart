@@ -306,7 +306,6 @@ final class Double {
 }
 
 final int maxInt = Integer.maxValue;
-
 final int minInt = Integer.minValue;
 
 final class Integer {

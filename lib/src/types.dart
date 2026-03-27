@@ -1,5 +1,9 @@
 typedef CompareFun<E> = int Function(E a, E b);
+
+typedef CompareWith<K, E> = int Function(E element, K target);
+
 typedef CompareFun2<E> = Comparable Function(E a);
+
 typedef EachFun<E> = void Function(E data, int index);
 typedef Fun1<A> = void Function(A a);
 typedef Fun2<A, B> = B Function(A a);
