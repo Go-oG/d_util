@@ -1,4 +1,4 @@
-import '../types.dart';
+import '../helper/compare.dart';
 import 'list_ext.dart';
 
 extension MapExt<K, V> on Map<K, V> {

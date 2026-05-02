@@ -1,4 +1,5 @@
-import '../struct/array.dart';
+import '../helper/array.dart';
+import '../helper/compare.dart';
 import '../types.dart';
 
 extension IterableExt<E> on Iterable<E> {
@@ -159,14 +160,26 @@ extension ListExt<E> on List<E> {
 
   E get(int index) => this[index];
 
-  E? getOrNull(int index) {
-    if (index < 0 || index >= length) {
-      return null;
+  E? safeGet(int index) {
+    if (index >= 0 && index < length) {
+      return this[index];
     }
-    return this[index];
+    return null;
   }
 
-  int get size => length;
+  List<E> safeSublist(int start, [int? end]) {
+    if (start < 0) {
+      start = 0;
+    }
+    if (start >= length) {
+      start = length - 1;
+    }
+    int realEnd = end ?? length - 1;
+    if (realEnd > length) {
+      realEnd = length;
+    }
+    return sublist(start, realEnd);
+  }
 
   void sortWith(CComparator<E> comparator) {
     sort((a, b) => comparator.compare(a, b));
@@ -317,6 +330,25 @@ extension ListExt<E> on List<E> {
     final index = lowerBound(target, compare) - 1;
     return index >= 0 ? index : notFound;
   }
+}
+
+List<Object> flattenList(List<Object> values) {
+  final result = <Object>[];
+  void visit(Object? value) {
+    if (value == null) return;
+    if (value is Iterable) {
+      for (final item in value) {
+        visit(item);
+      }
+      return;
+    }
+    result.add(value);
+  }
+
+  for (final value in values) {
+    visit(value);
+  }
+  return result;
 }
 
 class ListIterator<T> {
