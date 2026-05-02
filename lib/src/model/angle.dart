@@ -1,10 +1,6 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
-extension AngleExt on num {
-
-}
-
 const pi2 = math.pi * 2;
 const halfPi = math.pi * 0.5;
 const piPow = math.pi * math.pi;
