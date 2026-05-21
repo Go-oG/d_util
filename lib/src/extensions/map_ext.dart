@@ -9,16 +9,15 @@ extension MapExt<K, V> on Map<K, V> {
   V? get(K k) => this[k];
 
   V get2(K k, [V Function()? builder]) {
-    var v = this[k];
-    if (v != null) {
-      return v;
+    if (containsKey(k)) {
+      return this[k] as V;
     }
     if (builder != null) {
-      v = builder();
-      this[k] = v as V;
+      final v = builder();
+      this[k] = v;
       return v;
     }
-    throw "Not value";
+    throw StateError("No value for key: $k");
   }
 
   V getOrDefault(K key, V defaultValue) {
@@ -42,7 +41,7 @@ extension MapExt<K, V> on Map<K, V> {
   }
 
   MapEntry<K, V>? minBy(CompareFun<MapEntry<K, V>> compare) {
-    return entries.maxBy(compare);
+    return entries.minBy(compare);
   }
 
   MapEntry<K, V>? maxBy(CompareFun<MapEntry<K, V>> compare) {

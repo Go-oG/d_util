@@ -23,11 +23,13 @@ extension IterableExt<E> on Iterable<E> {
 
   E? minBy(CompareFun<E> compare) {
     E? minV;
+    var hasValue = false;
     for (var item in this) {
-      if (minV == null) {
+      if (!hasValue) {
         minV = item;
+        hasValue = true;
       } else {
-        var c = compare(item, minV);
+        var c = compare(item, minV as E);
         if (c < 0) {
           minV = item;
         }
@@ -38,11 +40,13 @@ extension IterableExt<E> on Iterable<E> {
 
   E? maxBy(CompareFun<E> compare) {
     E? maxV;
+    var hasValue = false;
     for (var item in this) {
-      if (maxV == null) {
+      if (!hasValue) {
         maxV = item;
+        hasValue = true;
       } else {
-        var c = compare(item, maxV);
+        var c = compare(item, maxV as E);
         if (c > 0) {
           maxV = item;
         }
@@ -56,29 +60,24 @@ extension IterableExt<E> on Iterable<E> {
       return [];
     }
 
-    List<E> list = [];
     E? minV;
     E? maxV;
+    var hasValue = false;
     for (var item in this) {
-      if (minV == null) {
+      if (!hasValue) {
         minV = item;
+        maxV = item;
+        hasValue = true;
       } else {
-        var c = compare(minV, item);
-        if (c > 0) {
+        if (compare(minV as E, item) > 0) {
           minV = item;
         }
-      }
-
-      if (maxV == null) {
-        maxV = item;
-      } else {
-        var c = compare(maxV, item);
-        if (c < 0) {
+        if (compare(maxV as E, item) < 0) {
           maxV = item;
         }
       }
     }
-    return list;
+    return [minV as E, maxV as E];
   }
 
   double sum(double Function(E) sumFun, {double initValue = 0}) {
@@ -171,10 +170,13 @@ extension ListExt<E> on List<E> {
     if (start < 0) {
       start = 0;
     }
-    if (start >= length) {
-      start = length - 1;
+    if (start > length) {
+      start = length;
     }
-    int realEnd = end ?? length - 1;
+    int realEnd = end ?? length;
+    if (realEnd < start) {
+      realEnd = start;
+    }
     if (realEnd > length) {
       realEnd = length;
     }
@@ -199,7 +201,7 @@ extension ListExt<E> on List<E> {
     int index = length - 1;
     for (var item in reversed) {
       fun(item, index);
-      index++;
+      index--;
     }
   }
 
@@ -214,6 +216,7 @@ extension ListExt<E> on List<E> {
       if (unionSet.contains(e)) {
         removeAt(i);
       } else {
+        unionSet.add(e);
         i++;
       }
     }
@@ -271,7 +274,7 @@ extension ListExt<E> on List<E> {
   }
 
   void push(E value) {
-    insert(0, value);
+    add(value);
   }
 
   List<E> copy() => List.from(this);
@@ -310,7 +313,11 @@ extension ListExt<E> on List<E> {
 
   /// 二分查找等于 target 的元素位置
   /// 没找到返回 [notFound]
-  int binarySearchIndex<K>(K target, CompareWith<K, E> compare, [int notFound = -1]) {
+  int binarySearchIndex<K>(
+    K target,
+    CompareWith<K, E> compare, [
+    int notFound = -1,
+  ]) {
     if (isEmpty) {
       return notFound;
     }
@@ -323,7 +330,11 @@ extension ListExt<E> on List<E> {
 
   /// 最后一个 < target 的元素位置
   /// 没有则返回 [notFound]
-  int lastLessThanIndex<K>(K target, CompareWith<K, E> compare, [int notFound = -1]) {
+  int lastLessThanIndex<K>(
+    K target,
+    CompareWith<K, E> compare, [
+    int notFound = -1,
+  ]) {
     if (isEmpty) {
       return notFound;
     }
@@ -332,7 +343,9 @@ extension ListExt<E> on List<E> {
   }
 }
 
-List<Object> flattenList(List<Object> values) {
+
+
+List<Object> flattenList(Object? value) {
   final result = <Object>[];
   void visit(Object? value) {
     if (value == null) return;
@@ -345,9 +358,7 @@ List<Object> flattenList(List<Object> values) {
     result.add(value);
   }
 
-  for (final value in values) {
-    visit(value);
-  }
+  visit(value);
   return result;
 }
 

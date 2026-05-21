@@ -53,12 +53,12 @@ extension NumberExt on num {
 }
 
 extension IntExt on int {
-  String padLeft(int width, [String padding = '']) {
-    return toString().padLeft(width, padding);
+  String padLeft(int width) {
+    return toString().padLeft(width, '0');
   }
 
-  String padRight(int width, [String fill = '']) {
-    return toString().padRight(width, fill);
+  String padRight(int width) {
+    return toString().padRight(width, '0');
   }
 }
 
