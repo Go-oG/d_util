@@ -13,8 +13,14 @@ final class RandomUtil {
   static double random() => _random.nextDouble();
 
   static int randomInt(int min, int max) {
-    var r = _random.nextDouble();
-    return (r * (max - min)).floor() + min;
+    if (min > max) {
+      throw ArgumentError.value(
+        max,
+        "max",
+        "must be greater than or equal to min",
+      );
+    }
+    return _random.nextInt(max - min + 1) + min;
   }
 
   static Color randomColor() {

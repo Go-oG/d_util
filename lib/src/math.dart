@@ -91,60 +91,35 @@ final class Math {
   }
 
   static int addExact(int x, int y) {
-    int r = x + y;
-    if (((x ^ r) & (y ^ r)) < 0) {
-      throw "integer overflow";
-    } else {
-      return r;
-    }
+    return _checkBigIntRange(BigInt.from(x) + BigInt.from(y));
   }
 
   static int subtractExact(int x, int y) {
-    int r = x - y;
-    if (((x ^ y) & (x ^ r)) < 0) {
-      throw "int overflow";
-    } else {
-      return r;
-    }
+    return _checkBigIntRange(BigInt.from(x) - BigInt.from(y));
   }
 
   static int multiplyExact(int x, int y) {
-    int r = x * y;
-    int ax = x.abs();
-    int ay = y.abs();
-    if ((ax | ay) >>> 31 == 0 || (y == 0 || r / y == x) && (x != Integer.minValue || y != -1)) {
-      return r;
-    } else {
-      throw "int overflow";
-    }
+    return _checkBigIntRange(BigInt.from(x) * BigInt.from(y));
   }
 
   static int incrementExact(int a) {
-    if (a == Integer.maxValue) {
-      throw "int overflow";
-    } else {
-      return a + 1;
-    }
+    return addExact(a, 1);
   }
 
   static int decrementExact(int a) {
-    if (a == Integer.minValue) {
-      throw "int overflow";
-    } else {
-      return a - 1;
-    }
+    return subtractExact(a, 1);
   }
 
   static int negateExact(int a) {
     if (a == Integer.minValue) {
       throw "int overflow";
     } else {
-      return -a;
+      return _checkBigIntRange(-BigInt.from(a));
     }
   }
 
-  static int multiplyFull(int x, int y) {
-    return x * y;
+  static BigInt multiplyFull(int x, int y) {
+    return BigInt.from(x) * BigInt.from(y);
   }
 
   static int multiplyHigh(int x, int y) {
@@ -229,8 +204,8 @@ final class Math {
   }
 
   static int rint(double num) {
-    if (num.isNaN || num.isInfinite) {
-      return num.toInt();
+    if (!num.isFinite) {
+      throw UnsupportedError("Cannot round non-finite double value");
     }
     double absolute = num.abs();
     double floor = absolute.floorToDouble();
@@ -250,6 +225,14 @@ final class Math {
 
   static double random() {
     return _random.nextDouble();
+  }
+
+  static int _checkBigIntRange(BigInt value) {
+    if (value < BigInt.from(Integer.minValue) ||
+        value > BigInt.from(Integer.maxValue)) {
+      throw "int overflow";
+    }
+    return value.toInt();
   }
 }
 
@@ -300,7 +283,11 @@ final class Double {
     return d1.compareTo(d2);
   }
 
-  static bool equalsWithTolerance(double x1, double x2, [double tolerance = 0.0000000001]) {
+  static bool equalsWithTolerance(
+    double x1,
+    double x2, [
+    double tolerance = 0.0000000001,
+  ]) {
     return Math.abs(x1 - x2) <= tolerance;
   }
 }
@@ -312,8 +299,12 @@ final int minInt = Integer.minValue;
 final class Integer {
   Integer._();
 
-  static final int minValue = (kIsWeb || identical(1, 1.0)) ? -0x1FFFFFFFFFFFFF : -0x8000000000000000;
-  static final int maxValue = (kIsWeb || identical(1, 1.0)) ? 0x1FFFFFFFFFFFFF : 0x7FFFFFFFFFFFFFFF;
+  static final int minValue = (kIsWeb || identical(1, 1.0))
+      ? -0x1FFFFFFFFFFFFF
+      : -0x8000000000000000;
+  static final int maxValue = (kIsWeb || identical(1, 1.0))
+      ? 0x1FFFFFFFFFFFFF
+      : 0x7FFFFFFFFFFFFFFF;
 
   static const int safeMinValue = -0x1FFFFFFFFFFFFF;
   static const int safeMaxValue = 0x1FFFFFFFFFFFFF;

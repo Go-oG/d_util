@@ -1,6 +1,6 @@
 void checkArgs(bool value, [String? msg]) {
   if (!value) {
-    throw msg ?? "违法参数";
+    throw ArgumentError(msg ?? "违法参数");
   }
 }
 
@@ -11,6 +11,6 @@ void checkRef(dynamic a, dynamic b, [String? msg]) {
     return;
   }
   if (identical(a, b)) {
-    throw (msg ?? "a b引用的地址相同");
+    throw ArgumentError(msg ?? "a b引用的地址相同");
   }
 }

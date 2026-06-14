@@ -1,35 +1,54 @@
-abstract class Exception {
-  final String? message;
-  final StackTrace? trace;
+class IllegalArgumentException implements Exception {
+  final String message;
 
-  Exception([this.message, this.trace]);
+  const IllegalArgumentException([this.message = ""]);
 
   @override
   String toString() {
-    return "$runtimeType $message\n$trace";
+    return "IllegalArgumentException:$message";
   }
 }
 
-class IllegalArgumentException extends Exception {
-  IllegalArgumentException([super.message, super.trace]);
+class ArgumentsError implements Exception {
+  final String message;
+
+  const ArgumentsError([this.message = ""]);
+
+  @override
+  String toString() {
+    return "ArgumentsError:$message";
+  }
 }
 
-class ArgumentsError extends Exception {
-  ArgumentsError([super.message, super.trace]);
+class TypeMatchError implements Exception {
+  final String message;
+
+  const TypeMatchError([this.message = ""]);
+
+  @override
+  String toString() {
+    return "TypeMatchError:$message";
+  }
 }
 
-class TypeMatchError extends Exception {
-  TypeMatchError([super.message, super.trace]);
+class IllegalStatusError implements Exception {
+  final String message;
+
+  const IllegalStatusError([this.message = ""]);
+
+  @override
+  String toString() {
+    return "IllegalStatusError:$message";
+  }
 }
 
-class UnSupportError extends Exception {
-  UnSupportError([super.message, super.trace]);
-}
+class OutOfRangeError implements Exception {
+  final String message;
 
-class IllegalStatusError extends Exception {
-  IllegalStatusError([super.message, super.trace]);
-}
+  const OutOfRangeError([this.message = ""]);
 
-class OutOfRangeError extends Exception {
-  OutOfRangeError([super.message, super.trace]);
+  @override
+  String toString() {
+    return "IllegalStatusError:$message";
+  }
 }

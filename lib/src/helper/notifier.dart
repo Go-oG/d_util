@@ -59,7 +59,10 @@ class ValueObs<T> implements IValueObs<T> {
   @override
   void addListener(VoidFun1<T>? listener) => addListener2(listener);
 
-  void addListener2(VoidFun1<T>? listener, [Priority priority = Priority.normal]) {
+  void addListener2(
+    VoidFun1<T>? listener, [
+    Priority priority = Priority.normal,
+  ]) {
     if (listener == null) return;
     if (_count == _listeners.length) {
       final newCap = (_count == 0) ? _kInitialCapacity : _listeners.length * 2;
@@ -125,19 +128,22 @@ class ValueObs<T> implements IValueObs<T> {
   void notifyListeners() {
     if (_count == 0) return;
     _notifyDepth++;
-    final tmpValue = _value;
-    final end = _count;
+    try {
+      final tmpValue = _value;
+      final end = _count;
 
-    for (int i = 0; i < end; i++) {
-      final entry = _listeners[i];
-      if (entry != null) {
-        entry.callback(tmpValue);
+      for (int i = 0; i < end; i++) {
+        final entry = _listeners[i];
+        if (entry != null) {
+          entry.callback(tmpValue);
+        }
       }
-    }
-    _notifyDepth--;
-    if (_notifyDepth == 0 && _removedInNotify > 0) {
-      _compactIfNeeded();
-      _removedInNotify = 0;
+    } finally {
+      _notifyDepth--;
+      if (_notifyDepth == 0 && _removedInNotify > 0) {
+        _compactIfNeeded();
+        _removedInNotify = 0;
+      }
     }
   }
 
@@ -202,9 +208,13 @@ class ValueObs<T> implements IValueObs<T> {
 
     final cap = _listeners.length;
     if (cap >= _kInitialCapacity && _count * 3 <= cap) {
-      final newCap = (_count == 0) ? 0 : (_count * 2).clamp(_kInitialCapacity, 1 << 30);
+      final newCap = (_count == 0)
+          ? 0
+          : (_count * 2).clamp(_kInitialCapacity, 1 << 30);
 
-      final newList = newCap == 0 ? <_ListenerEntry<T>>[] : List<_ListenerEntry<T>?>.filled(newCap, null);
+      final newList = newCap == 0
+          ? <_ListenerEntry<T>>[]
+          : List<_ListenerEntry<T>?>.filled(newCap, null);
 
       for (int i = 0; i < _count; i++) {
         newList[i] = _listeners[i];
@@ -239,7 +249,8 @@ mixin ValuesObsProxyMixin<T> implements IValueObs<T> {
   void notifyListeners() => valueObs.notifyListeners();
 
   @override
-  void removeListener(VoidFun1<T>? listener) => valueObs.removeListener(listener);
+  void removeListener(VoidFun1<T>? listener) =>
+      valueObs.removeListener(listener);
 
   @override
   List<VoidFun1<T>> get listeners => valueObs.listeners;
@@ -270,22 +281,23 @@ class BroadcastObs<T> implements Disposable {
     _notifier = ValueObs(_NeverEqual._default(), lowToHigh: lowToHigh);
   }
 
-  ListenerSubscription<T> listen(VoidFun1<T> listener, [Priority priority = Priority.normal]) {
-    var ll = _map.remove(listener);
-    if (ll != null) {
-      _notifier.removeListener(ll._onCall);
-    }
+  ListenerSubscription<T> listen(
+    VoidFun1<T> listener, [
+    Priority priority = Priority.normal,
+  ]) {
+    _map[listener]?.dispose();
     var result = ListenerSubscription<T>._(listener, this);
     _map[listener] = result;
     _notifier.addListener2(result._onCall, priority);
     return result;
   }
 
-  void _removeListener(VoidFun1<_NeverEqual<T>>? listener) {
-    if (listener == null) {
-      return;
+  void _removeSubscription(ListenerSubscription<T> subscription) {
+    final listener = subscription._listener;
+    if (listener != null && identical(_map[listener], subscription)) {
+      _map.remove(listener);
     }
-    _notifier.removeListener(listener);
+    _notifier.removeListener(subscription._onCall);
   }
 
   void notify(T tmpValue) {
@@ -302,8 +314,9 @@ class BroadcastObs<T> implements Disposable {
 
   @override
   void dispose() {
-    for (var e in _map.entries) {
-      e.value.dispose();
+    final old = _map.values.toList(growable: false);
+    for (var e in old) {
+      e.dispose();
     }
     _map.clear();
     _notifier.dispose();
@@ -327,7 +340,7 @@ final class ListenerSubscription<T> implements Disposable {
 
   @override
   void dispose() {
-    _notifier?._removeListener(_onCall);
+    _notifier?._removeSubscription(this);
     _listener = null;
     _notifier = null;
   }
@@ -349,13 +362,13 @@ mixin BroadcastSubMixin on Disposable {
     VoidFun1<T> listener, [
     Priority priority = Priority.normal,
   ]) {
-    if (_subsMap[key] != null) {
-      final result = obs.listen(listener, priority);
-      _subsMap[key] = result;
-    }
+    _subsMap.remove(key)?.dispose();
+    final result = obs.listen(listener, priority);
+    _subsMap[key] = result;
   }
 
-  ListenerSubscription<T>? getSubscription<T>(Object key) => _subsMap[key] as ListenerSubscription<T>?;
+  ListenerSubscription<T>? getSubscription<T>(Object key) =>
+      _subsMap[key] as ListenerSubscription<T>?;
 
   @override
   void dispose() {

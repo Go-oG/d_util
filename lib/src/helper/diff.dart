@@ -71,7 +71,13 @@ final class DiffResult<N> {
   ///所有的数据包含旧数据和新数据
   late final UniqueList<N> allSet;
 
-  DiffResult(this.addSet, this.removeSet, this.oldUpdateSet, this.newUpdateSet, this.newSet) {
+  DiffResult(
+    this.addSet,
+    this.removeSet,
+    this.oldUpdateSet,
+    this.newUpdateSet,
+    this.newSet,
+  ) {
     updateSet = UniqueList()
       ..addAll(oldUpdateSet)
       ..addAll(newUpdateSet);
@@ -82,7 +88,7 @@ final class DiffResult<N> {
     allSet.addAll(addSet);
   }
 
-  bool get hasChange => addSet.isNotEmpty || removeSet.isNotEmpty || oldUpdateSet.isNotEmpty || newUpdateSet.isNotEmpty;
+  bool get hasChange => addSet.isNotEmpty || removeSet.isNotEmpty;
 
   String countInfo() {
     return "[add:${addSet.length},update:${newUpdateSet.length},remove:${removeSet.length},newAll:${addSet.length + newUpdateSet.length}] ";

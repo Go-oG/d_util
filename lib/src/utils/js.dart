@@ -42,7 +42,7 @@ bool boolAnd(dynamic a, dynamic b) {
 }
 
 /// 模拟JavaScript a||b 的bool 返回值
-bool boolOr(num a, num b) {
+bool boolOr(dynamic a, dynamic b) {
   return isTrue(ifOr(a, b));
 }
 

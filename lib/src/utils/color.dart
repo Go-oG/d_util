@@ -43,8 +43,14 @@ final class ColorUtil {
       b = x;
     }
 
-    final rgb = [((r + m) * 255).round(), ((g + m) * 255).round(), ((b + m) * 255).round()];
-    return Color(((a * 255).round() << 24) | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2]);
+    final rgb = [
+      ((r + m) * 255).round(),
+      ((g + m) * 255).round(),
+      ((b + m) * 255).round(),
+    ];
+    return Color(
+      ((a * 255).round() << 24) | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2],
+    );
   }
 
   static Color fromHSI(double h, double s, double i, [double a = 1.0]) {
@@ -57,15 +63,27 @@ final class ColorUtil {
 
     if (hue < 1.0 / 3.0) {
       b = (1.0 - s) / 3.0;
-      r = (1.0 + s * cos(hue * 2.0 * pi) / cos(pi / 3.0 - hue * 2.0 * pi)) / 3.0;
+      r =
+          (1.0 + s * cos(hue * 2.0 * pi) / cos(pi / 3.0 - hue * 2.0 * pi)) /
+          3.0;
       g = 1.0 - (r + b);
     } else if (hue < 2.0 / 3.0) {
       r = (1.0 - s) / 3.0;
-      g = (1.0 + s * cos((hue - 1.0 / 3.0) * 2.0 * pi) / cos(pi / 3.0 - (hue - 1.0 / 3.0) * 2.0 * pi)) / 3.0;
+      g =
+          (1.0 +
+              s *
+                  cos((hue - 1.0 / 3.0) * 2.0 * pi) /
+                  cos(pi / 3.0 - (hue - 1.0 / 3.0) * 2.0 * pi)) /
+          3.0;
       b = 1.0 - (r + g);
     } else {
       g = (1.0 - s) / 3.0;
-      b = (1.0 + s * cos((hue - 2.0 / 3.0) * 2.0 * pi) / cos(pi / 3.0 - (hue - 2.0 / 3.0) * 2.0 * pi)) / 3.0;
+      b =
+          (1.0 +
+              s *
+                  cos((hue - 2.0 / 3.0) * 2.0 * pi) /
+                  cos(pi / 3.0 - (hue - 2.0 / 3.0) * 2.0 * pi)) /
+          3.0;
       r = 1.0 - (g + b);
     }
 
@@ -73,9 +91,15 @@ final class ColorUtil {
     g *= 3.0 * i;
     b *= 3.0 * i;
 
-    final rgb = [(r * 255).round().clamp(0, 255), (g * 255).round().clamp(0, 255), (b * 255).round().clamp(0, 255)];
+    final rgb = [
+      (r * 255).round().clamp(0, 255),
+      (g * 255).round().clamp(0, 255),
+      (b * 255).round().clamp(0, 255),
+    ];
 
-    return Color(((a * 255).round() << 24) | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2]);
+    return Color(
+      ((a * 255).round() << 24) | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2],
+    );
   }
 
   static Color fromLAB(double l, double a, double b, [double alpha = 1.0]) {
@@ -84,11 +108,15 @@ final class ColorUtil {
     const refZ = 108.883;
 
     double labToXyz(double t) {
-      return t > 6.0 / 29.0 ? pow(t, 3).toDouble() : 3.0 * (6.0 / 29.0) * (6.0 / 29.0) * (t - 4.0 / 29.0);
+      return t > 6.0 / 29.0
+          ? pow(t, 3).toDouble()
+          : 3.0 * (6.0 / 29.0) * (6.0 / 29.0) * (t - 4.0 / 29.0);
     }
 
     double gammaCorrect(double value) {
-      return value <= 0.0031308 ? 12.92 * value : 1.055 * pow(value, 1.0 / 2.4).toDouble() - 0.055;
+      return value <= 0.0031308
+          ? 12.92 * value
+          : 1.055 * pow(value, 1.0 / 2.4).toDouble() - 0.055;
     }
 
     l = l.clamp(0.0, 100.0);
@@ -104,6 +132,10 @@ final class ColorUtil {
     y = labToXyz(y) * refY;
     z = labToXyz(z) * refZ;
 
+    x /= 100.0;
+    y /= 100.0;
+    z /= 100.0;
+
     var r = x * 3.2406 + y * -1.5372 + z * -0.4986;
     var g = x * -0.9689 + y * 1.8758 + z * 0.0415;
     var b2 = x * 0.0557 + y * -0.2040 + z * 1.0570;
@@ -112,9 +144,15 @@ final class ColorUtil {
     g = gammaCorrect(g);
     b2 = gammaCorrect(b2);
 
-    final rgb = [(r * 255).round().clamp(0, 255), (g * 255).round().clamp(0, 255), (b2 * 255).round().clamp(0, 255)];
+    final rgb = [
+      (r * 255).round().clamp(0, 255),
+      (g * 255).round().clamp(0, 255),
+      (b2 * 255).round().clamp(0, 255),
+    ];
 
-    return Color(((alpha * 255).round() << 24) | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2]);
+    return Color(
+      ((alpha * 255).round() << 24) | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2],
+    );
   }
 
   static Color fromYUV(double y, double u, double v, [double alpha = 1.0]) {
@@ -133,7 +171,9 @@ final class ColorUtil {
 
     final rgb = [(r * 255).round(), (g * 255).round(), (b * 255).round()];
 
-    return Color(((alpha * 255).round() << 24) | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2]);
+    return Color(
+      ((alpha * 255).round() << 24) | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2],
+    );
   }
 
   static Color fromYUV2(int y, int u, int v, [double alpha = 1.0]) {
@@ -172,19 +212,29 @@ final class ColorUtil {
         '${b.toRadixString(16).padLeft(2, '0')}';
   }
 
-  final _rand = Random();
+  static final _rand = Random();
 
   /// 生成鲜艳的可视化调色板
   /// [randomize] 是否加入随机扰动
   /// [continuous] 是否生成连续渐变色带
-  List<Color> generateVividColors(int count, {bool randomize = false, bool continuous = false}) {
+  static List<Color> generateVividColors(
+    int count, {
+    bool randomize = false,
+    bool continuous = false,
+  }) {
+    if (count <= 0) {
+      return const [];
+    }
+
     const double saturation = 0.85;
     const double lightness = 0.55;
 
     List<Color> colors = [];
 
     for (int i = 0; i < count; i++) {
-      double hue = continuous ? (i / (count - 1)) * 360 : (i * 360.0 / count);
+      double hue = continuous && count > 1
+          ? (i / (count - 1)) * 360
+          : (i * 360.0 / count);
       if (randomize) {
         hue += _rand.nextDouble() * 10 - 5;
       }
@@ -268,7 +318,12 @@ final class ColorUtil {
         .map((rbgValue) => double.parse(rbgValue.trim()))
         .toList();
     var rgbaValues = _hslToRgb(hlsaValues[0], hlsaValues[1], hlsaValues[2]);
-    return Color.fromRGBO(rgbaValues[0], rgbaValues[1], rgbaValues[2], hlsaValues[3]);
+    return Color.fromRGBO(
+      rgbaValues[0],
+      rgbaValues[1],
+      rgbaValues[2],
+      hlsaValues[3],
+    );
   }
 
   static List<int> _hslToRgb(double h, double s, double l) {
@@ -307,7 +362,12 @@ final class ColorUtil {
   }
 
   static List<int> toARGB(Color c) {
-    return [(c.a * 255).round(), (c.r * 255).round(), (c.g * 255).round(), (c.b * 255).round()];
+    return [
+      (c.a * 255).round(),
+      (c.r * 255).round(),
+      (c.g * 255).round(),
+      (c.b * 255).round(),
+    ];
   }
 
   static List<int> toRGB(Color c) {

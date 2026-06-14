@@ -40,13 +40,13 @@ final class Array<E> implements Iterable<E> {
   }
 
   Array([this.size = 0]) {
-    if (E is int) {
+    if (E == int) {
       _list = List.filled(size, 0);
-    } else if (E is double) {
+    } else if (E == double) {
       _list = List.filled(size, 0.0);
-    } else if (E is num) {
+    } else if (E == num) {
       _list = List.filled(size, 0.0);
-    } else if (E is bool) {
+    } else if (E == bool) {
       _list = List.filled(size, false);
     } else {
       _list = List.filled(size, null);
@@ -63,11 +63,19 @@ final class Array<E> implements Iterable<E> {
     List<E> list = [];
     for (var item in _list) {
       if (item == null) {
-        throw "参数错误";
+        throw StateError("Array contains null value");
       }
-      list.add(item);
+      list.add(item as E);
     }
     return list;
+  }
+
+  List<E?> asNullableList({bool growable = true}) {
+    return List<E?>.generate(
+      size,
+      (index) => _list[index] as E?,
+      growable: growable,
+    );
   }
 
   Iterable<E> get reversed => _list.reversed.cast();
@@ -154,11 +162,11 @@ final class Array<E> implements Iterable<E> {
 
   void clear() {
     for (var i = 0; i < size; i++) {
-      if (E is int) {
+      if (E == int) {
         _list[i] = 0;
-      } else if (E is num) {
+      } else if (E == double || E == num) {
         _list[i] = 0.0;
-      } else if (E is bool) {
+      } else if (E == bool) {
         _list[i] = false;
       } else {
         _list[i] = null;
@@ -209,10 +217,27 @@ final class Array<E> implements Iterable<E> {
   }
 
   void insert(int index, E element) {
+    RangeError.checkValidIndex(index, _list, 'index');
+    for (var i = size - 1; i > index; i--) {
+      _list[i] = _list[i - 1];
+    }
     _list[index] = element;
   }
 
-  void insertAll(int index, Iterable<E> iterable) {}
+  void insertAll(int index, Iterable<E> iterable) {
+    RangeError.checkValueInInterval(index, 0, size, 'index');
+    final values = iterable.toList(growable: false);
+    if (values.isEmpty || index == size) {
+      return;
+    }
+    final count = values.length > size - index ? size - index : values.length;
+    for (var i = size - 1; i >= index + count; i--) {
+      _list[i] = _list[i - count];
+    }
+    for (var i = 0; i < count; i++) {
+      _list[index + i] = values[i];
+    }
+  }
 
   @override
   Iterator<E> get iterator => _ArrayIterator(this);
@@ -295,7 +320,11 @@ final class Array<E> implements Iterable<E> {
 
   @override
   List<E> toList({bool growable = true}) {
-    return _list.cast();
+    return List<E>.generate(
+      size,
+      (index) => _list[index] as E,
+      growable: growable,
+    );
   }
 
   @override
@@ -317,11 +346,15 @@ final class Array<E> implements Iterable<E> {
   List<R> cast<R>() {
     List<R> resultList = [];
     for (var item in _list) {
-      if (E is num) {
-        if (R is int) {
-          resultList.add((item as num).toInt() as R);
+      if (item is num) {
+        if (R == int) {
+          resultList.add((item).toInt() as R);
+        } else if (R == double) {
+          resultList.add((item).toDouble() as R);
+        } else if (R == num) {
+          resultList.add(item as R);
         } else {
-          resultList.add((item as num).toDouble() as R);
+          resultList.add(item as R);
         }
       } else {
         resultList.add(item as R);
@@ -330,7 +363,12 @@ final class Array<E> implements Iterable<E> {
     return resultList;
   }
 
-  static void sortRange<T>(Array<T> array, int fromIndex, int toIndex, [int Function(T a, T b)? comparator]) {
+  static void sortRange<T>(
+    Array<T> array,
+    int fromIndex,
+    int toIndex, [
+    int Function(T a, T b)? comparator,
+  ]) {
     if (fromIndex < 0 || toIndex > array.length || fromIndex > toIndex) {
       throw RangeError("Invalid range: $fromIndex to $toIndex");
     }
@@ -341,7 +379,9 @@ final class Array<E> implements Iterable<E> {
       if (sublist.isNotEmpty && sublist.first is Comparable) {
         (sublist as List<Comparable>).sort();
       } else {
-        throw ArgumentError("List elements must be Comparable if no comparator is provided");
+        throw ArgumentError(
+          "List elements must be Comparable if no comparator is provided",
+        );
       }
     }
     array._list.setRange(fromIndex, toIndex, sublist);
@@ -349,12 +389,28 @@ final class Array<E> implements Iterable<E> {
 
   static Array<T> copyOf<T>(Array<T> original, int newLength) {
     Array<T> copy = Array(newLength);
-    arrayCopy(original, 0, copy, 0, Math.min(original.length, newLength).toInt());
+    arrayCopy(
+      original,
+      0,
+      copy,
+      0,
+      Math.min(original.length, newLength).toInt(),
+    );
     return copy;
   }
 
-  static void arrayCopy<T>(Array<T> src, int srcPos, Array<T> dest, int destPos, int length) {
-    if (srcPos < 0 || destPos < 0 || length < 0 || srcPos + length > src.length || destPos + length > dest.length) {
+  static void arrayCopy<T>(
+    Array<T> src,
+    int srcPos,
+    Array<T> dest,
+    int destPos,
+    int length,
+  ) {
+    if (srcPos < 0 ||
+        destPos < 0 ||
+        length < 0 ||
+        srcPos + length > src.length ||
+        destPos + length > dest.length) {
       throw RangeError("Invalid source or destination position or length");
     }
     dest._list.setRange(destPos, destPos + length, src._list, srcPos);
@@ -382,10 +438,14 @@ final class Array<E> implements Iterable<E> {
   }
 
   @override
-  Iterable<T> expand<T>(Iterable<T> Function(E element) toElements) => throw UnimplementedError();
+  Iterable<T> expand<T>(Iterable<T> Function(E element) toElements) {
+    return _list.cast<E>().expand(toElements);
+  }
 
   @override
-  Iterable<E> followedBy(Iterable<E> other) => throw UnimplementedError();
+  Iterable<E> followedBy(Iterable<E> other) {
+    return _list.cast<E>().followedBy(other);
+  }
 
   @override
   bool get isEmpty => size == 0;

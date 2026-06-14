@@ -26,6 +26,9 @@ T? lerpDynamic<T>(T s, T e, double t) {
   if (funItem != null) {
     return funItem(s, e, t);
   }
+  if (s is int && e is int) {
+    return lerpInt(s, e, t) as T;
+  }
   if (s is num && e is num) {
     return lerpNum(s, e, t) as T;
   }
@@ -55,7 +58,7 @@ T? lerpDynamic<T>(T s, T e, double t) {
     return (s as dynamic).lerp(e, t);
   } catch (_) {}
   try {
-    return (s as dynamic) + ((e as dynamic) - (s as dynamic)) * t as T;
+    return ((s as dynamic) + ((e as dynamic) - (s as dynamic)) * t) as T;
   } catch (_) {}
   return null;
 }
@@ -117,12 +120,21 @@ double lerpNum(num? s, num? e, double t) {
   return (s + (e - s) * t);
 }
 
-List<Offset> lerpOffsetList(List<Offset> a, List<Offset> b, double t, {Offset dismissOffset = Offset.zero}) {
+List<Offset> lerpOffsetList(
+  List<Offset> a,
+  List<Offset> b,
+  double t, {
+  Offset dismissOffset = Offset.zero,
+}) {
   final int maxLength = a.length > b.length ? a.length : b.length;
   final List<Offset> result = [];
   for (int i = 0; i < maxLength; i++) {
-    final Offset start = i < a.length ? a[i] : (a.isNotEmpty ? a.last : dismissOffset);
-    final Offset end = i < b.length ? b[i] : (b.isNotEmpty ? b.last : dismissOffset);
+    final Offset start = i < a.length
+        ? a[i]
+        : (a.isNotEmpty ? a.last : dismissOffset);
+    final Offset end = i < b.length
+        ? b[i]
+        : (b.isNotEmpty ? b.last : dismissOffset);
     result.add(Offset.lerp(start, end, t)!);
   }
   return result;
@@ -143,44 +155,47 @@ typedef LerpFun<T> = T Function(T start, T end, double t);
 Object? lerpObject<T>(T? a, T? b, double t) {
   if (a == null && b == null) return null;
 
-  if (T is num) {
+  if (T == int || T == double || T == num || a is num || b is num) {
     final v = lerpDouble(a as num?, b as num?, t)!;
-    if (T is double) {
+    if (T == int || a is int && b is int) {
+      return v.toInt();
+    }
+    if (T == double || a is double || b is double) {
       return v;
     }
-    return (v.toInt());
+    return v;
   }
 
-  if (T is Offset) {
+  if (T == Offset || a is Offset || b is Offset) {
     return Offset.lerp(a as Offset?, b as Offset?, t);
   }
 
-  if (T is Color) {
+  if (T == Color || a is Color || b is Color) {
     return Color.lerp(a as Color?, b as Color?, t);
   }
 
-  if (T is Size) {
+  if (T == Size || a is Size || b is Size) {
     return Size.lerp(a as Size?, b as Size?, t);
   }
 
-  if (T is Duration) {
+  if (T == Duration || a is Duration || b is Duration) {
     final s = (a as Duration?)?.inMilliseconds;
     final e = (b as Duration?)?.inMilliseconds;
     final v = lerpDouble(s, e, t)!.toInt();
     return Duration(milliseconds: v);
   }
 
-  if (T is DateTime) {
+  if (T == DateTime || a is DateTime || b is DateTime) {
     final s = (a as DateTime?)?.millisecondsSinceEpoch;
     final e = (b as DateTime?)?.millisecondsSinceEpoch;
     return DateTime.fromMillisecondsSinceEpoch(lerpDouble(s, e, t)!.toInt());
   }
 
-  if (T is Rect) {
+  if (T == Rect || a is Rect || b is Rect) {
     return Rect.lerp(a as Rect?, b as Rect?, t);
   }
 
-  if (T is RRect) {
+  if (T == RRect || a is RRect || b is RRect) {
     return RRect.lerp(a as RRect?, b as RRect?, t);
   }
 
@@ -188,7 +203,7 @@ Object? lerpObject<T>(T? a, T? b, double t) {
     return _lerpMatrix4(a as Matrix4?, b as Matrix4?, t);
   }
 
-  if (T is List) {
+  if (T == List || a is List || b is List) {
     if (b == null) {
       return (a as List).map((e) => lerpObject(e, null, t)).toList();
     }
@@ -205,7 +220,7 @@ Object? lerpObject<T>(T? a, T? b, double t) {
     return result;
   }
 
-  if (T is Map) {
+  if (T == Map || a is Map || b is Map) {
     final result = <dynamic, dynamic>{};
     if (b == null) {
       for (var e in (a as Map).entries) {

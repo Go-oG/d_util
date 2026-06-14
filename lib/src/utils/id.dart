@@ -1,7 +1,6 @@
 import 'package:uuid/uuid.dart';
 
 abstract class IdUtil {
-
   static final _randomId = _RandomId();
 
   IdUtil._();
@@ -19,23 +18,29 @@ abstract class IdUtil {
     }
     if (value is DateTime) return value.toUtc().toIso8601String();
     if (value is List) {
-      if (value.isEmpty) return "[]";
-      return "[${value.map((e) => idOf(e, nullAsEmpty: nullAsEmpty)).join(',')}]";
+      if (value.isEmpty) return "list[]";
+      return "list[${value.map((e) => _segment(e, nullAsEmpty)).join(',')}]";
     }
     if (value is Set) {
-      if (value.isEmpty) return "[]";
+      if (value.isEmpty) return "set[]";
       final list = value.toList();
-      list.sort((a, b) => idOf(a, nullAsEmpty: nullAsEmpty).compareTo(idOf(b, nullAsEmpty: nullAsEmpty)));
-      return idOf(list, nullAsEmpty: nullAsEmpty);
+      list.sort(
+        (a, b) => _segment(a, nullAsEmpty).compareTo(_segment(b, nullAsEmpty)),
+      );
+      return "set[${list.map((e) => _segment(e, nullAsEmpty)).join(',')}]";
     }
     if (value is Map) {
-      if (value.isEmpty) return "{}";
+      if (value.isEmpty) return "map{}";
       final keys = value.keys.toList();
-      keys.sort((a, b) => idOf(a, nullAsEmpty: nullAsEmpty).compareTo(idOf(b, nullAsEmpty: nullAsEmpty)));
+      keys.sort(
+        (a, b) => _segment(a, nullAsEmpty).compareTo(_segment(b, nullAsEmpty)),
+      );
 
-      final b = StringBuffer("{");
+      final b = StringBuffer("map{");
       for (final k in keys) {
-        b.write("${idOf(k, nullAsEmpty: nullAsEmpty)}:${idOf(value[k], nullAsEmpty: nullAsEmpty)},");
+        b.write(
+          "${_segment(k, nullAsEmpty)}:${_segment(value[k], nullAsEmpty)},",
+        );
       }
       b.write("}");
       return b.toString();
@@ -44,6 +49,24 @@ abstract class IdUtil {
   }
 
   static String randomId() => _randomId.randomId();
+
+  static String _segment(Object? value, bool nullAsEmpty) {
+    final id = idOf(value, nullAsEmpty: nullAsEmpty);
+    return "${_tag(value)}${id.length}:$id";
+  }
+
+  static String _tag(Object? value) {
+    if (value == null) return "n";
+    if (value is String) return "s";
+    if (value is bool) return "b";
+    if (value is int) return "i";
+    if (value is double) return "d";
+    if (value is DateTime) return "t";
+    if (value is List) return "l";
+    if (value is Set) return "e";
+    if (value is Map) return "m";
+    return "o";
+  }
 }
 
 final class _RandomId {
