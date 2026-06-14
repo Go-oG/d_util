@@ -6,6 +6,7 @@ const halfPi = math.pi * 0.5;
 const piPow = math.pi * math.pi;
 
 extension type Angle(double radians) implements double {
+  static const _epsilon = 1e-9;
   static const _degToRad = math.pi / 180.0;
   static const _radToDeg = 180.0 / math.pi;
 
@@ -89,9 +90,9 @@ extension type Angle(double radians) implements double {
 
   double get tan => math.tan(radians);
 
-  bool get isZero => radians.abs() <= 1e-9;
+  bool get isZero => radians.abs() <= _epsilon;
 
-  bool get isFull => (radians - pi2).abs() <= 1e-9;
+  bool get isFull => radians.abs() >= pi2 - _epsilon;
 
-  bool equals(Angle other, [double epsilon = 1e-10]) => (radians - other.radians).abs() < epsilon;
+  bool equals(Angle other, {double epsilon = _epsilon}) => (radians - other.radians).abs() < epsilon;
 }
